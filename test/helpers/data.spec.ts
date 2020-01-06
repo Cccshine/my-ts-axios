@@ -1,4 +1,4 @@
-import { transformRequest } from '../../src/helpers/data'
+import { transformRequest, transformResponse } from '../../src/helpers/data'
 
 describe('helpers:data', () => {
   describe('transformRequest', () => {
@@ -11,6 +11,17 @@ describe('helpers:data', () => {
       const data = new FormData()
       data.append('name', 'cc')
       expect(transformRequest(data)).toBe(data)
+    })
+  })
+
+  describe('transformResponse', () => {
+    test('should JSON parse json string', () => {
+      expect(transformResponse('{"a":1,"b":2}')).toEqual({ a: 1, b: 2 })
+    })
+
+    test('should not JSON parse if data is not json string', () => {
+      expect(transformResponse('abc')).toBe('abc')
+      expect(transformResponse(1)).toBe(1)
     })
   })
 })

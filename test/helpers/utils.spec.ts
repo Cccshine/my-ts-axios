@@ -1,4 +1,4 @@
-import { isNull, isUndefined, isDate, isPlainObject } from '../../src/helpers/utils'
+import { isNull, isUndefined, isDate, isPlainObject, isString } from '../../src/helpers/utils'
 
 describe('helpers:utils', () => {
   describe('isXX', () => {
@@ -29,6 +29,12 @@ describe('helpers:utils', () => {
       expect(isPlainObject(null)).toBeFalsy()
       expect(isPlainObject(function() {})).toBeFalsy()
       expect(isPlainObject(new Date())).toBeFalsy()
+    })
+
+    test('should string', () => {
+      expect(isString('')).toBeTruthy()
+      expect(isString(1)).toBeFalsy()
+      expect(isString(new Date())).toBeFalsy()
     })
   })
 })

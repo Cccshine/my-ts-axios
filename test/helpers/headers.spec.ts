@@ -1,4 +1,4 @@
-import { processHeaders } from '../../src/helpers/headers'
+import { processHeaders, parseHeaders } from '../../src/helpers/headers'
 
 describe('helpers:headers', () => {
   describe('processHeaders', () => {
@@ -28,6 +28,30 @@ describe('helpers:headers', () => {
     test('should do nothing if headers is undefined or null', () => {
       expect(processHeaders(null, {})).toBeNull()
       expect(processHeaders(undefined, {})).toBeUndefined()
+    })
+  })
+
+  describe('parseHeaders', () => {
+    test('should do nothing if headers is empty', () => {
+      expect(parseHeaders('')).toEqual({})
+    })
+
+    test('should parse headers', () => {
+      const parsed = parseHeaders(
+        'Content-Type: application/json\r\n' +
+          'Connection: keep-alive\r\n' +
+          'Transfer-Encoding: chunked\r\n' +
+          'Date: Tue, 21 May 2019 09:23:44 GMT\r\n' +
+          ':aa\r\n' +
+          'key:\r\n' +
+          'cc'
+      )
+      expect(parsed['content-type']).toBe('application/json')
+      expect(parsed['connection']).toBe('keep-alive')
+      expect(parsed['transfer-encoding']).toBe('chunked')
+      expect(parsed['date']).toBe('Tue, 21 May 2019 09:23:44 GMT')
+      expect(parsed['key']).toBe('')
+      expect(parsed['cc']).toBeUndefined()
     })
   })
 })
