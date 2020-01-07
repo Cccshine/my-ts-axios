@@ -1,11 +1,23 @@
 import { AxiosRequestConfig, AxiosPromise, AxiosReponse } from './types/index'
 import { isNull } from './helpers/utils'
 import { parseHeaders } from './helpers/headers'
+import { createError } from './helpers/error'
 
 export default function xhr(config: AxiosRequestConfig): AxiosPromise {
-  return new Promise(resolve => {
-    const { url, method = 'get', data = null, params = null, headers, responseType } = config
+  return new Promise((resolve, reject) => {
+    const {
+      url,
+      method = 'get',
+      data = null,
+      params = null,
+      headers,
+      responseType,
+      timeout
+    } = config
     const request = new XMLHttpRequest()
+    if (timeout) {
+      request.timeout = timeout
+    }
     if (responseType) {
       request.responseType = responseType
     }
@@ -13,6 +25,11 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
       if (request.readyState !== 4) {
         return
       }
+      if (request.status === 0) {
+        // 网络错误或者超时错误时status为0
+        return
+      }
+
       const responseHeaders = parseHeaders(request.getAllResponseHeaders())
       const responseData =
         responseType && responseType !== 'text' ? request.response : request.responseText
@@ -24,7 +41,25 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
         request: request,
         config: config
       }
-      resolve(response)
+      if (request.status >= 200 && request.status < 300) {
+        resolve(response)
+      } else {
+        reject(
+          createError(
+            `Request failed with status code ${response.status}`,
+            config,
+            null,
+            request,
+            response
+          )
+        )
+      }
+    }
+    request.onerror = () => {
+      reject(createError(`Network Error`, config, null, request))
+    }
+    request.ontimeout = () => {
+      reject(createError(`Timeout of ${timeout} ms exceeded`, config, 'ECONNABORTED', request))
     }
     request.open(method.toUpperCase(), url, true)
     Object.keys(headers).forEach(name => {
