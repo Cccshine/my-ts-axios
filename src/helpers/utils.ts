@@ -20,3 +20,13 @@ export function isPlainObject(val: any): val is Object {
 export function isString(val: any): val is string {
   return typeof val === 'string'
 }
+
+// 泛型函数,使用交叉类型
+export function extend<T, U>(to: T, from: U): T & U {
+  for (let key in from) {
+    // key是T类型的键名，to是U类型，所以不可以直接to[key]
+    // from[key]是T类型的键值，to[key]是U类型的键值，两者不可直接赋值
+    ;(to as T & U)[key] = from[key] as any
+  }
+  return to as T & U
+}

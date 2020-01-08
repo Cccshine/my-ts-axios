@@ -1,4 +1,11 @@
-import { isNull, isUndefined, isDate, isPlainObject, isString } from '../../src/helpers/utils'
+import {
+  isNull,
+  isUndefined,
+  isDate,
+  isPlainObject,
+  isString,
+  extend
+} from '../../src/helpers/utils'
 
 describe('helpers:utils', () => {
   describe('isXX', () => {
@@ -35,6 +42,26 @@ describe('helpers:utils', () => {
       expect(isString('')).toBeTruthy()
       expect(isString(1)).toBeFalsy()
       expect(isString(new Date())).toBeFalsy()
+    })
+  })
+
+  describe('extend', () => {
+    test('should be mutable', () => {
+      const a = Object.create(null)
+      const b = { foo: 123 }
+
+      extend(a, b)
+
+      expect(a.foo).toBe(123)
+    })
+
+    test('should extend properties', function() {
+      const a = { foo: 123, bar: 456 }
+      const b = { bar: 789 }
+      const c = extend(a, b)
+
+      expect(c.foo).toBe(123)
+      expect(c.bar).toBe(789)
     })
   })
 })
