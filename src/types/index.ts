@@ -1,5 +1,6 @@
 // 该接口是类类型接口，用来描述Axios类的公共方法，接口也只能描述类的公共部分
 export interface AxiosInterface {
+  interceptors: Interceptors
   request<T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>
   request<T = any>(config: AxiosRequestConfig): AxiosPromise<T>
   get<T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>
@@ -52,6 +53,33 @@ export interface AxiosError extends Error {
   request?: any
   response?: AxiosReponse
   isAxiosError: boolean
+}
+
+// Axios类的拦截器属性 接口， 有resuest和response两个属性，两者均有两个方法：use和eject
+export interface Interceptors {
+  request: InterceptorManagerInterface<AxiosRequestConfig>
+  response: InterceptorManagerInterface<AxiosReponse>
+}
+
+// 单个拦截器管理类InterceptorManager 类型接口
+export interface InterceptorManagerInterface<T = any> {
+  use(resolve: ResolveFn<T>, reject?: RejectFn): number
+  forEach(fn: (interceptor: Interceptor<T>) => void): void
+  eject(id: number): void
+}
+
+// InterceptorManager类内部的私有属性interceptors的数组项的对象接口
+export interface Interceptor<T> {
+  resolve: ResolveFn<T>
+  reject?: RejectFn
+}
+
+// request和respnse的拦截器传入resolve的参数类型不一样，所以要用泛型函数类型接口
+export interface ResolveFn<T = any> {
+  (val: T): T | Promise<T>
+}
+export interface RejectFn {
+  (error: any): any
 }
 
 // 字符串字面量类型
