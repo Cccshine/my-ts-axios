@@ -12,6 +12,7 @@ import {
 import dispatchRequest from './dispatchRequest'
 import { isString } from '../helpers/utils'
 import InterceptorManager from './InterceptorManager'
+import mergeConfig from './mergeConfig'
 
 // 链式调用 接口
 interface PromiseChain {
@@ -21,8 +22,10 @@ interface PromiseChain {
 
 // Axios类实现AxiosInstance接口
 export default class Axios implements AxiosInterface {
+  defaults: AxiosRequestConfig
   interceptors: Interceptors
-  constructor() {
+  constructor(initConfig: AxiosRequestConfig) {
+    this.defaults = initConfig
     this.interceptors = {
       // InterceptorManager类的实例
       request: new InterceptorManager<AxiosRequestConfig>(),
@@ -40,6 +43,7 @@ export default class Axios implements AxiosInterface {
     } else {
       config = url
     }
+    config = mergeConfig(this.defaults, config)
 
     // 将发起请求这个操作先塞进链表中
     const chain: PromiseChain[] = [

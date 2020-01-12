@@ -1,5 +1,6 @@
 // 该接口是类类型接口，用来描述Axios类的公共方法，接口也只能描述类的公共部分
 export interface AxiosInterface {
+  defaults: AxiosRequestConfig
   interceptors: Interceptors
   request<T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>
   request<T = any>(config: AxiosRequestConfig): AxiosPromise<T>
@@ -21,6 +22,15 @@ export interface AxiosInstance extends AxiosInterface {
   // isInstance: boolean
 }
 
+// 继承AxiosInstance接口，且自己新增一个方法
+export interface AxiosStatic extends AxiosInstance {
+  create(config?: AxiosRequestConfig): AxiosInstance
+
+  CancleToken: CancelTokenStatic
+  Cancel: CancelStatic
+  isCancel: (value: any) => boolean
+}
+
 export interface AxiosRequestConfig {
   url?: string
   method?: Method
@@ -29,6 +39,10 @@ export interface AxiosRequestConfig {
   params?: any
   responseType?: XMLHttpRequestResponseType // 响应的数据类型
   timeout?: number
+  transformRequest?: AxiosTransformer | AxiosTransformer[]
+  transformResponse?: AxiosTransformer | AxiosTransformer[]
+  cancelToken?: CancelTokenInterface
+  [propName: string]: any
 }
 
 export interface AxiosReponse<T = any> {
@@ -53,6 +67,10 @@ export interface AxiosError extends Error {
   request?: any
   response?: AxiosReponse
   isAxiosError: boolean
+}
+
+export interface AxiosTransformer {
+  (data: any, headers?: any): any
 }
 
 // Axios类的拦截器属性 接口， 有resuest和response两个属性，两者均有两个方法：use和eject
@@ -80,6 +98,43 @@ export interface ResolveFn<T = any> {
 }
 export interface RejectFn {
   (error: any): any
+}
+
+// CancelToken类接口
+export interface CancelTokenInterface {
+  promise: Promise<string>
+  reason?: string
+}
+
+// 取消函数接口
+export interface Canceler {
+  (message?: string): void
+}
+
+// CancelToken 类构造函数参数的接口定义
+export interface CancelExecutor {
+  (cancel: Canceler): void
+}
+
+// CancelToken 类静态方法 source 函数的返回值类型
+export interface CancelTokenSource {
+  token: CancelTokenInterface
+  cancel: Canceler
+}
+
+// CancelTokenStatic 则作为 CancelToken 类的类类型
+export interface CancelTokenStatic {
+  new (executor: CancelExecutor): CancelTokenInterface
+
+  source(): CancelTokenSource
+}
+
+export interface Cancel {
+  message?: string
+}
+
+export interface CancelStatic {
+  new (message?: string): Cancel
 }
 
 // 字符串字面量类型

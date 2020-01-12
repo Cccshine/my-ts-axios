@@ -30,3 +30,57 @@ export function extend<T, U>(to: T, from: U): T & U {
   }
   return to as T & U
 }
+
+// 深拷贝
+export function deepMerge(...objs: any[]): any {
+  const result = Object.create(null)
+  objs.forEach(obj => {
+    if (obj) {
+      Object.keys(obj).forEach(key => {
+        let val = obj[key]
+        if (isPlainObject(val)) {
+          if (!isPlainObject(result[key])) {
+            result[key] = {}
+          }
+          result[key] = deepMerge(result[key], val)
+        } else {
+          result[key] = val
+        }
+      })
+    }
+  })
+  return result
+}
+
+// jquery的$.extend实现  深浅拷贝
+// target: 为boolean类型时表示是否深拷贝，为对象时表示目标对象
+export function $extend(target: any, ...objs: any[]) {
+  let deep: boolean = false
+  if (typeof target === 'boolean') {
+    deep = target
+    target = objs[0] // 目标对象
+  }
+  objs.forEach(obj => {
+    _extend(target, obj, deep)
+  })
+  return target
+}
+
+function _extend(target: any, source: any, deep: boolean): any {
+  for (let key in source) {
+    let sVal = source[key]
+    if (deep && (isPlainObject(sVal) || Array.isArray(sVal))) {
+      // source[key] 是对象，而 target[key] 不是对象， 则 target[key] = {} 初始化一下，否则递归会出错的
+      if (isPlainObject(sVal) && !isPlainObject(target[key])) {
+        target[key] = {}
+      }
+      // source[key] 是数组，而 target[key] 不是数组，则 target[key] = [] 初始化一下，否则递归会出错的
+      if (Array.isArray(sVal) && !Array.isArray(target[key])) {
+        target[key] = []
+      }
+      _extend(target[key], sVal, deep)
+    } else if (!isUndefined(sVal)) {
+      target[key] = sVal
+    }
+  }
+}
