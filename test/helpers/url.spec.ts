@@ -1,4 +1,4 @@
-import { buildURL } from '../../src/helpers/url'
+import { buildURL, isURLSameOrigin } from '../../src/helpers/url'
 
 describe('helpers:url', () => {
   describe('buildURL', () => {
@@ -44,6 +44,15 @@ describe('helpers:url', () => {
 
     test('should correct discard url hash mark', () => {
       expect(buildURL('/foo?foo=bar#hash', { bar: 'baz' })).toBe('/foo?foo=bar&bar=baz')
+    })
+  })
+  describe('isURLSameOrigin', () => {
+    test('should detect same origin', () => {
+      expect(isURLSameOrigin(window.location.href)).toBeTruthy()
+    })
+
+    test('should detect different origin', () => {
+      expect(isURLSameOrigin('https://github.com/axios/axios')).toBeFalsy()
     })
   })
 })

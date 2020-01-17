@@ -1,4 +1,4 @@
-// 该接口是类类型接口，用来描述Axios类的公共方法，接口也只能描述类的公共部分
+// 该接口是类类型接口，用来描述Axios类的公共方法及属性，接口也只能描述类的公共部分，且是针对类的实例部分
 export interface AxiosInterface {
   defaults: AxiosRequestConfig
   interceptors: Interceptors
@@ -11,6 +11,12 @@ export interface AxiosInterface {
   post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): AxiosPromise<T>
   put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): AxiosPromise<T>
   patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): AxiosPromise<T>
+  getUri(config?: AxiosRequestConfig): string
+}
+
+// Axios类的类类型，针对静态部分
+export interface AxiosClassStatic {
+  new (config: AxiosRequestConfig): AxiosInterface
 }
 
 // AxiosInstance继承Axios接口，获得了那些方法，同时它自己本身就是一个函数类型接口，所以它是一个混合类型接口，
@@ -26,9 +32,13 @@ export interface AxiosInstance extends AxiosInterface {
 export interface AxiosStatic extends AxiosInstance {
   create(config?: AxiosRequestConfig): AxiosInstance
 
-  CancleToken: CancelTokenStatic
+  CancelToken: CancelTokenStatic
   Cancel: CancelStatic
   isCancel: (value: any) => boolean
+
+  all<T>(promises: (T | Promise<T>)[]): Promise<T[]>
+  spread<T, R>(callback: (...args: T[]) => R): (arr: T[]) => R
+  Axios: AxiosClassStatic
 }
 
 export interface AxiosRequestConfig {
@@ -42,6 +52,15 @@ export interface AxiosRequestConfig {
   transformRequest?: AxiosTransformer | AxiosTransformer[]
   transformResponse?: AxiosTransformer | AxiosTransformer[]
   cancelToken?: CancelTokenInterface
+  withCredentials?: boolean
+  xsrfCookieName?: string
+  xsrfHeaderName?: string
+  auth?: AxiosBasicCredentials
+  baseURL?: string
+  onDownloadProgress?: (e: ProgressEvent) => void
+  onUploadProgress?: (e: ProgressEvent) => void
+  validateStatus?: (status: number) => boolean
+  paramsSerializer?: (params: any) => string
   [propName: string]: any
 }
 
@@ -100,10 +119,11 @@ export interface RejectFn {
   (error: any): any
 }
 
-// CancelToken类接口
+// CancelToken类接口，针对CancelToken实例部分
 export interface CancelTokenInterface {
-  promise: Promise<string>
-  reason?: string
+  promise: Promise<CancelInterface>
+  reason?: CancelInterface
+  throwIfRequested(): void
 }
 
 // 取消函数接口
@@ -111,7 +131,7 @@ export interface Canceler {
   (message?: string): void
 }
 
-// CancelToken 类构造函数参数的接口定义
+// CancelToken 类构造函数 参数的接口定义
 export interface CancelExecutor {
   (cancel: Canceler): void
 }
@@ -122,19 +142,27 @@ export interface CancelTokenSource {
   cancel: Canceler
 }
 
-// CancelTokenStatic 则作为 CancelToken 类的类类型
+// CancelTokenStatic 则作为 CancelToken 类的类类型， 针对CancelToken类的静态部分
 export interface CancelTokenStatic {
-  new (executor: CancelExecutor): CancelTokenInterface
+  new (executor: CancelExecutor): CancelTokenInterface // 构造函数
 
-  source(): CancelTokenSource
+  source(): CancelTokenSource // 静态方法
 }
 
-export interface Cancel {
+// Cancle类 的接口，针对实例部分()
+export interface CancelInterface {
   message?: string
 }
 
+// Cancle类 的接口，针对静态部分
 export interface CancelStatic {
-  new (message?: string): Cancel
+  new (message?: string): CancelInterface
+}
+
+// auth 对象的接口
+export interface AxiosBasicCredentials {
+  username: string
+  password: string
 }
 
 // 字符串字面量类型

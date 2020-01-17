@@ -3,6 +3,8 @@ import Axios from './core/Axios'
 import { extend } from './helpers/utils'
 import defaults from './default'
 import mergeConfig from './core/mergeConfig'
+import CancelToken from './cancel/CancelToken'
+import Cancel, { isCancel } from './cancel/Cancel'
 
 // 实现类型为AxiosInstance的混合对象
 function createInstance(config: AxiosRequestConfig): AxiosStatic {
@@ -20,4 +22,25 @@ const axios = createInstance(defaults)
 axios.create = function(config?: AxiosRequestConfig): AxiosInstance {
   return createInstance(mergeConfig(defaults, config))
 }
+axios.CancelToken = CancelToken
+axios.Cancel = Cancel
+axios.isCancel = isCancel
+axios.all = function all(promises) {
+  return Promise.all(promises)
+}
+axios.spread = function spread(callback) {
+  return function wrap(arr) {
+    return callback.apply(null, arr)
+  }
+}
+
+// axios.all([a,b]).then(axios.spread(function(ares,bres){
+
+// }));
+// 相当于
+// Promise.all([a,b]).then(function(ares,bres){
+
+// })
+
+axios.Axios = Axios
 export default axios

@@ -21,6 +21,14 @@ export function isString(val: any): val is string {
   return typeof val === 'string'
 }
 
+export function isFormData(val: any): val is FormData {
+  return toString.call(val) === '[object FormData]'
+}
+
+export function isURLSearchParams(val: any): val is URLSearchParams {
+  return toString.call(val) === '[object URLSearchParams]'
+}
+
 // 泛型函数,使用交叉类型
 export function extend<T, U>(to: T, from: U): T & U {
   for (let key in from) {

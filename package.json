@@ -128,7 +128,9 @@
     "webpack-hot-middleware": "^2.25.0"
   },
   "dependencies": {
+    "atob": "^2.1.2",
     "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.4",
     "express": "^4.17.1"
   }
 }

@@ -1,9 +1,11 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const cookieParser = require('cookie-parser')
 const webpack = require('webpack')
 const webpackDevMiddleware = require('webpack-dev-middleware')
 const webpackHotMiddleware = require('webpack-hot-middleware')
 const WebpackConfig = require('./webpack.config')
+const atob = require('atob')
 
 const app = express()
 const compiler = webpack(WebpackConfig)
@@ -18,11 +20,20 @@ app.use(webpackDevMiddleware(compiler, {
 
 app.use(webpackHotMiddleware(compiler))
 
-app.use(express.static(__dirname))
+app.use(express.static(__dirname, {
+  setHeaders(res) {
+    res.cookie('XSRF-TOKEN-D', '1234abc')
+  }
+}))
 
 app.use(bodyParser.json())
 // app.use(bodyParser.text())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.urlencoded({
+  extended: true
+}))
+
+app.use(cookieParser())
+
 
 const router = express.Router()
 
@@ -37,6 +48,10 @@ registerExtendRouter()
 registerInterceptorRouter()
 
 registerConfigRouter()
+
+registerCancelRouter()
+
+registerMoreRouter()
 
 app.use(router)
 
@@ -152,3 +167,50 @@ function registerConfigRouter() {
   })
 }
 
+function registerCancelRouter() {
+  router.get('/cancel/get', function (req, res) {
+    setTimeout(() => {
+      res.json({
+        msg: `hello world`
+      })
+    }, 2000)
+  })
+  router.post('/cancel/post', function (req, res) {
+    setTimeout(() => {
+      res.json(req.body)
+    }, 2000)
+  })
+}
+
+function registerMoreRouter() {
+  router.get('/more/get', function (req, res) {
+    res.json(req.cookies)
+  })
+  router.post('/more/post', function (req, res) {
+    const auth = req.headers.authorization
+    const [type, credentials] = auth.split(' ')
+    console.log(atob(credentials))
+    const [username, password] = atob(credentials).split(':')
+    if (type === 'Basic' && username === 'Yee' && password === '123456') {
+      res.json(req.body)
+    } else {
+      res.end('UnAuthorization')
+    }
+  })
+
+  router.get('/more/304', function (req, res) {
+    res.status(304)
+    res.end()
+  })
+
+  router.get('/more/A', function (req, res) {
+    res.json({
+      msg: "A"
+    })
+  })
+  router.get('/more/B', function (req, res) {
+    res.json({
+      msg: "B"
+    })
+  })
+}
