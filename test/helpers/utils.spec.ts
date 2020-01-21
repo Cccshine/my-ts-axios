@@ -6,7 +6,9 @@ import {
   isString,
   extend,
   $extend,
-  deepMerge
+  deepMerge,
+  isFormData,
+  isURLSearchParams
 } from '../../src/helpers/utils'
 
 describe('helpers:utils', () => {
@@ -44,6 +46,16 @@ describe('helpers:utils', () => {
       expect(isString('')).toBeTruthy()
       expect(isString(1)).toBeFalsy()
       expect(isString(new Date())).toBeFalsy()
+    })
+
+    test('should validate FormData', () => {
+      expect(isFormData(new FormData())).toBeTruthy()
+      expect(isFormData({})).toBeFalsy()
+    })
+
+    test('should validate URLSearchParams', () => {
+      expect(isURLSearchParams(new URLSearchParams())).toBeTruthy()
+      expect(isURLSearchParams('foo=1&bar=2')).toBeFalsy()
     })
   })
 

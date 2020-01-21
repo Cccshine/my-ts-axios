@@ -1,4 +1,4 @@
-import { AxiosRequestConfig, AxiosPromise, AxiosReponse } from '../types'
+import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from '../types'
 import { isNull, isFormData } from '../helpers/utils'
 import { parseHeaders } from '../helpers/headers'
 import { createError } from '../helpers/error'
@@ -66,7 +66,7 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
         const responseHeaders = parseHeaders(request.getAllResponseHeaders())
         const responseData =
           responseType && responseType !== 'text' ? request.response : request.responseText
-        const response: AxiosReponse = {
+        const response: AxiosResponse = {
           data: responseData,
           status: request.status,
           statusText: request.statusText,
@@ -121,7 +121,6 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
       if (auth) {
         headers['Authorization'] = 'Basic ' + btoa(auth.username + ':' + auth.password)
       }
-      console.log(headers)
       // 设置请求头
       Object.keys(headers).forEach(name => {
         if (isNull(data) && name.toLowerCase() === 'content-type') {

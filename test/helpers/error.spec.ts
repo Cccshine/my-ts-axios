@@ -1,4 +1,4 @@
-import { AxiosRequestConfig, AxiosReponse } from '../../src'
+import { AxiosRequestConfig, AxiosResponse } from '../../src'
 import { createError, AxiosErrorObject } from '../../src/helpers/error'
 
 describe('helpers:error', () => {
@@ -7,7 +7,7 @@ describe('helpers:error', () => {
     let config: AxiosRequestConfig = {
       url: '/cc'
     }
-    let response: AxiosReponse = {
+    let response: AxiosResponse = {
       data: 'cc',
       status: 200,
       statusText: 'OK',

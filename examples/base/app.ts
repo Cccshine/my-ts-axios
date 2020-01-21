@@ -1,5 +1,13 @@
 import axios from '../../src/index'
 
+axios({
+  method: 'get',
+  url: '/base/get',
+  params: {
+    foo: 'cc'
+  }
+})
+
 // axios({
 //   method: 'get',
 //   url: '/base/get',
@@ -120,5 +128,9 @@ axios({
     b: 4
   }
 }).then((res) => {
+  console.log(res)
+})
+
+axios('/base/get').then((res) => {
   console.log(res)
 })

@@ -64,7 +64,7 @@ export interface AxiosRequestConfig {
   [propName: string]: any
 }
 
-export interface AxiosReponse<T = any> {
+export interface AxiosResponse<T = any> {
   data: T
   status: number
   statusText: string
@@ -75,16 +75,16 @@ export interface AxiosReponse<T = any> {
 
 // AxiosPromise 这个接口继承 Promise<T> 这个泛型接口
 // 这样当 axios 返回的是 AxiosPromise 类型，那么 resolve 函数中的参数就是一个 AxiosResponse 类型
-// export interface AxiosPromise extends Promise<AxiosReponse> { }
-// 两次泛型，则resolve函数中参数是AxiosReponse<T>类型，则response的data是T类型
-export interface AxiosPromise<T = any> extends Promise<AxiosReponse<T>> {}
+// export interface AxiosPromise extends Promise<AxiosResponse> { }
+// 两次泛型，则resolve函数中参数是AxiosResponse<T>类型，则response的data是T类型
+export interface AxiosPromise<T = any> extends Promise<AxiosResponse<T>> {}
 
 // 增强的error, 继承Error类，用来在外部使用，其实不定义这个接口，直接用AxiosErrorObject当类型也行
 export interface AxiosError extends Error {
   config: AxiosRequestConfig
   code?: string | null
   request?: any
-  response?: AxiosReponse
+  response?: AxiosResponse
   isAxiosError: boolean
 }
 
@@ -95,7 +95,7 @@ export interface AxiosTransformer {
 // Axios类的拦截器属性 接口， 有resuest和response两个属性，两者均有两个方法：use和eject
 export interface Interceptors {
   request: InterceptorManagerInterface<AxiosRequestConfig>
-  response: InterceptorManagerInterface<AxiosReponse>
+  response: InterceptorManagerInterface<AxiosResponse>
 }
 
 // 单个拦截器管理类InterceptorManager 类型接口

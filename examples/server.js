@@ -69,6 +69,7 @@ function registerSimpleRouter() {
 }
 
 function registerBaseRouter() {
+  console.log('进来访问了')
   router.get('/base/get', function (req, res) {
     res.json(req.query)
   })

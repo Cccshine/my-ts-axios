@@ -1,4 +1,4 @@
-import { AxiosRequestConfig, AxiosPromise, AxiosReponse } from '../types'
+import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from '../types'
 import xhr from './xhr'
 import { buildURL, isAbsoluteURL, combineURL } from '../helpers/url'
 import { transformRequest, transformResponse } from '../helpers/data'
@@ -8,9 +8,16 @@ import transform from './transform'
 function dispatchRequest(config: AxiosRequestConfig): AxiosPromise {
   throwIfCancellationRequested(config)
   processConfig(config)
-  return xhr(config).then(res => {
-    return transfromResponseData(res)
-  })
+  return xhr(config)
+    .then(res => {
+      return transformResponseData(res)
+    })
+    .catch(e => {
+      if (e && e.response) {
+        e.response = transformResponseData(e.response)
+      }
+      return Promise.reject(e)
+    })
 }
 
 function processConfig(config: AxiosRequestConfig): void {
@@ -39,7 +46,7 @@ function transformRequestData(config: AxiosRequestConfig): any {
   return transformRequest(data)
 }
 
-function transfromResponseData(res: AxiosReponse): AxiosReponse {
+function transformResponseData(res: AxiosResponse): AxiosResponse {
   // res.data = transformResponse(res.data)
   res.data = transform(res.data, res.headers, res.config.transformResponse)
   return res

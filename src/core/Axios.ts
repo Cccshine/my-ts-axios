@@ -4,7 +4,7 @@ import {
   AxiosPromise,
   Method,
   Interceptors,
-  AxiosReponse,
+  AxiosResponse,
   ResolveFn,
   RejectFn,
   Interceptor
@@ -29,7 +29,7 @@ export default class Axios implements AxiosInterface {
     this.interceptors = {
       // InterceptorManager类的实例
       request: new InterceptorManager<AxiosRequestConfig>(),
-      response: new InterceptorManager<AxiosReponse>()
+      response: new InterceptorManager<AxiosResponse>()
     }
   }
   request(url: string, config?: AxiosRequestConfig): AxiosPromise
@@ -44,6 +44,7 @@ export default class Axios implements AxiosInterface {
       config = url
     }
     config = mergeConfig(this.defaults, config)
+    config.method = config.method.toLowerCase()
 
     // 将发起请求这个操作先塞进链表中
     const chain: PromiseChain[] = [
@@ -59,7 +60,7 @@ export default class Axios implements AxiosInterface {
     })
 
     // 遍历response将拦截器从尾部插入链表，以保证先插入的先执行
-    this.interceptors.response.forEach((interceptor: Interceptor<AxiosReponse>) => {
+    this.interceptors.response.forEach((interceptor: Interceptor<AxiosResponse>) => {
       chain.push(interceptor)
     })
 
