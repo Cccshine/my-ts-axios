@@ -36,26 +36,29 @@ describe('requests', () => {
     })
   })
 
-  // test('should reject on network errors', done => {
-  //   const resolveSpy = jest.fn((res: AxiosResponse) => {
-  //     return res;
-  //   })
-  //   const rejectSpy = jest.fn((e: AxiosError) => {
-  //     return e;
-  //   })
-  //   // 先卸载以模拟网络问题
-  //   jasmine.Ajax.uninstall();
-  //   axios('/foo').then(resolveSpy).catch(rejectSpy).then((result: AxiosResponse | AxiosError) => {
-  //     expect(resolveSpy).not.toHaveBeenCalled();
-  //     expect(rejectSpy).toHaveBeenCalled();
-  //     expect(result instanceof Error).toBeTruthy();
-  //     expect((result as AxiosError).message).toBe('Network Error');
-  //     expect(result.request).toEqual(expect.any(XMLHttpRequest));
-  //     // 因为afterEach会 uninstall 所以在这里先install
-  //     jasmine.Ajax.install();
-  //     done();
-  //   })
-  // })
+  test('should reject on network errors', done => {
+    const resolveSpy = jest.fn((res: AxiosResponse) => {
+      return res
+    })
+    const rejectSpy = jest.fn((e: AxiosError) => {
+      return e
+    })
+    // 先卸载以模拟网络问题
+    jasmine.Ajax.uninstall()
+    axios('/foo')
+      .then(resolveSpy)
+      .catch(rejectSpy)
+      .then((result: AxiosResponse | AxiosError) => {
+        expect(resolveSpy).not.toHaveBeenCalled()
+        expect(rejectSpy).toHaveBeenCalled()
+        expect(result instanceof Error).toBeTruthy()
+        expect((result as AxiosError).message).toBe('Network Error')
+        expect(result.request).toEqual(expect.any(XMLHttpRequest))
+        // 因为afterEach会 uninstall 所以在这里先install
+        jasmine.Ajax.install()
+        done()
+      })
+  })
 
   test('should reject when request timeout', done => {
     let err: AxiosError
@@ -64,7 +67,7 @@ describe('requests', () => {
       method: 'post'
     }).catch(error => {
       // console.log('lulullul')
-      console.log(error)
+      // console.log(error)
       err = error
     })
 
@@ -187,6 +190,10 @@ describe('requests', () => {
       }
     }).catch(error => {
       response = error.response
+      expect(typeof response.data).toBe('object')
+      expect(response.data.error).toBe('BAD USERNAME')
+      expect(response.data.code).toBe(1)
+      done()
     })
 
     getAjaxRequest().then(request => {
@@ -196,23 +203,104 @@ describe('requests', () => {
         responseText: '{"error": "BAD USERNAME", "code": 1}'
       })
 
+      // setTimeout(() => {
+      //   expect(typeof response.data).toBe('object')
+      //   expect(response.data.error).toBe('BAD USERNAME')
+      //   expect(response.data.code).toBe(1)
+      //   done()
+      // }, 0)
+    })
+  })
+
+  test('should supply correct response', done => {
+    let response: AxiosResponse
+
+    axios.post('/foo').then(res => {
+      response = res
+    })
+
+    getAjaxRequest().then(request => {
+      request.respondWith({
+        status: 200,
+        statusText: 'OK',
+        responseText: '{"foo": "bar"}',
+        responseHeaders: {
+          'Content-Type': 'application/json'
+        }
+      })
+
       setTimeout(() => {
-        expect(typeof response.data).toBe('object')
-        expect(response.data.error).toBe('BAD USERNAME')
-        expect(response.data.code).toBe(1)
+        expect(response.data.foo).toBe('bar')
+        expect(response.status).toBe(200)
+        expect(response.statusText).toBe('OK')
+        expect(response.headers['content-type']).toBe('application/json')
         done()
-      }, 0)
+      }, 100)
+    })
+  })
+
+  test('should allow overriding Content-Type header case-insensitive', () => {
+    let response: AxiosResponse
+
+    axios
+      .post(
+        '/foo',
+        { prop: 'value' },
+        {
+          headers: {
+            'content-type': 'application/json'
+          }
+        }
+      )
+      .then(res => {
+        response = res
+      })
+
+    return getAjaxRequest().then(request => {
+      expect(request.requestHeaders['Content-Type']).toBe('application/json')
+    })
+  })
+
+  test('should support array buffer response', done => {
+    let response: AxiosResponse
+
+    function str2ab(str: string) {
+      const buff = new ArrayBuffer(str.length * 2)
+      const view = new Uint16Array(buff)
+      for (let i = 0; i < str.length; i++) {
+        view[i] = str.charCodeAt(i)
+      }
+      return buff
+    }
+
+    axios('/foo', {
+      responseType: 'arraybuffer'
+    }).then(data => {
+      response = data
+    })
+
+    getAjaxRequest().then(request => {
+      request.respondWith({
+        status: 200,
+        // @ts-ignore
+        response: str2ab('Hello world')
+      })
+
+      setTimeout(() => {
+        expect(response.data.byteLength).toBe(22)
+        done()
+      }, 100)
     })
   })
 
   // 不要传done参数，传了的话就得调用，否则就会超时
-  test('my test', async () => {
-    await rqq('http://localhost:8088/base/get?foo=cc', function(
-      error: any,
-      response: any,
-      body: any
-    ) {
-      expect(body).toEqual(expect.any(String))
-    })
-  })
+  // test('my test', async () => {
+  //   await rqq('http://localhost:8088/base/get?foo=cc', function (
+  //     error: any,
+  //     response: any,
+  //     body: any
+  //   ) {
+  //     expect(body).toEqual(expect.any(String))
+  //   })
+  // })
 })

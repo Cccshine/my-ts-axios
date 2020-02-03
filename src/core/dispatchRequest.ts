@@ -10,12 +10,14 @@ function dispatchRequest(config: AxiosRequestConfig): AxiosPromise {
   processConfig(config)
   return xhr(config)
     .then(res => {
+      // then方法返回的是一个新的Promise实例（注意，不是原来那个Promise实例）
       return transformResponseData(res)
     })
     .catch(e => {
       if (e && e.response) {
         e.response = transformResponseData(e.response)
       }
+      // catch方法也会返回一个新的Promise实例，如果return不用Promise.reject处理，后续的会走到then里面去导致出错
       return Promise.reject(e)
     })
 }
@@ -36,15 +38,15 @@ export function transformURL(config: AxiosRequestConfig): string {
   return buildURL(url!, params, paramsSerializer)
 }
 
-function transformHeaders(config: AxiosRequestConfig): any {
-  let { headers = {}, data } = config
-  return processHeaders(headers, data)
-}
+// function transformHeaders(config: AxiosRequestConfig): any {
+//   let { headers = {}, data } = config
+//   return processHeaders(headers, data)
+// }
 
-function transformRequestData(config: AxiosRequestConfig): any {
-  let { data } = config
-  return transformRequest(data)
-}
+// function transformRequestData(config: AxiosRequestConfig): any {
+//   let { data } = config
+//   return transformRequest(data)
+// }
 
 function transformResponseData(res: AxiosResponse): AxiosResponse {
   // res.data = transformResponse(res.data)

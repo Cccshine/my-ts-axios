@@ -30,8 +30,7 @@ function deepMergeStrat(val1: any, val2: any): any {
   } else if (isPlainObject(val1)) {
     // val1 是对象
     return deepMerge(val1)
-  } else if (!isUndefined(val1)) {
-    // val1不是对象 但有值
+  } else {
     return val1
   }
 }

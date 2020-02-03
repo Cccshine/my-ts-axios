@@ -9,10 +9,9 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
   return new Promise((resolve, reject) => {
     const {
       url,
-      method = 'get',
+      method,
       data = null,
-      params = null,
-      headers,
+      headers = {},
       responseType,
       timeout,
       cancelToken,
@@ -27,7 +26,7 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
     // 创建一个 request 实例
     const request = new XMLHttpRequest()
     // 执行 request.open 方法初始化
-    request.open(method.toUpperCase(), url!, true)
+    request.open(method!.toUpperCase(), url!, true)
     // 执行 configureRequest 配置 request 对象
     configureRequest()
     // 执行 addEvents 给 request 添加事件处理函数
